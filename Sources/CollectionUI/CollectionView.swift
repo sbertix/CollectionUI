@@ -112,7 +112,14 @@ public struct CollectionView<Content>: UIViewControllerRepresentable where Conte
                 fatalError("`container` is invalid.")
             }
             container.frame = CGRect(origin: .zero, size: Content.size)
+            container.translatesAutoresizingMaskIntoConstraints = false
             cell.contentView.addSubview(container)
+            NSLayoutConstraint.activate([
+                container.topAnchor.constraint(equalTo: cell.contentView.topAnchor),
+                container.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor),
+                container.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor),
+                container.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor)
+            ])
             return cell
         }
     }
