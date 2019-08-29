@@ -13,6 +13,38 @@
 1. Follow the steps.
 
 ## Usage
+```swift
+import SwiftUI
+import CollectionUI
+
+/// A `StringView` conforming to `UICollectionViewCellRepresentable`.
+struct StringView : UICollectionViewCellRepresentable {
+    /// The cell size.
+    static var size: CGSize = .init(width: 100, height: 100)
+    /// The item.
+    var item: String
+    
+    /// Init.
+    init(_ item: String) { self.item = item }
+    /// The actual body.
+    var body: some View { Text(item) }
+}
+
+/// A `View`.
+struct ContentView : View {
+    var body: some View {
+        CollectionView<StringView>(.horizontal, // optional.
+                                   data: ["A", "B", "C", "D"],
+                                   id: \.hashValue,
+                                   contentInset: .init(top: 0, left: 15, bottom: 0, right: 15), // optional.
+                                   interitemSpacing: 10, // optional.
+                                   lineSpacing: 10, // optional.
+                                   showsIndicator: false // optional)
+             .frame(height: 300)
+    }
+}
+```
+
 Coming soon.
 
 ## License
