@@ -10,7 +10,7 @@ import SwiftUI
 import UIKit
 
 /// A wrapper for `UICollectionView`.
-public struct CollectionViewController<Content>: UIViewControllerRepresentable where Content: UICollectionViewCellRepresentable {
+public struct CollectionView<Content>: UIViewControllerRepresentable where Content: UICollectionViewCellRepresentable {
     public typealias Coordinator = CollectionCoordinator<Content>
 
     /// A wrapper.
@@ -45,7 +45,7 @@ public struct CollectionViewController<Content>: UIViewControllerRepresentable w
     public func makeCoordinator() -> Coordinator { Coordinator(self) }
 
     // MARK: Representable
-    public func makeUIViewController(context: UIViewControllerRepresentableContext<CollectionViewController<Content>>) -> UICollectionViewController {
+    public func makeUIViewController(context: UIViewControllerRepresentableContext<CollectionView<Content>>) -> UICollectionViewController {
         /// the actual layout.
         let itemLayout = NSCollectionLayoutItem(layoutSize: Content.size)
         let groupLayout = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1),
@@ -62,16 +62,16 @@ public struct CollectionViewController<Content>: UIViewControllerRepresentable w
         return controller
     }
     public func updateUIViewController(_ uiViewController: UICollectionViewController,
-                                       context: UIViewControllerRepresentableContext<CollectionViewController<Content>>) {
+                                       context: UIViewControllerRepresentableContext<CollectionView<Content>>) {
     }
 
     // MARK: Coordinator.
     public class CollectionCoordinator<Content>: NSObject, UICollectionViewDataSource where Content: UICollectionViewCellRepresentable {
         /// The parent.
-        var parent: CollectionViewController<Content>
+        var parent: CollectionView<Content>
 
         // MARK: Lifecycle
-        init(_ collectionViewController: CollectionViewController<Content>) {
+        init(_ collectionViewController: CollectionView<Content>) {
             self.parent = collectionViewController
         }
 
