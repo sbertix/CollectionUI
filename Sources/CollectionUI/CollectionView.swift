@@ -33,6 +33,8 @@ public struct CollectionView<Content>: UIViewControllerRepresentable where Conte
     private var interitemSpacing: CGFloat
     /// The line spacing.
     private var lineSpacing: CGFloat
+    /// Update collection view.
+    private var updateHandler: ((UICollectionView) -> Void)?
 
     // MARK: Lifecycle
     /// Init with data.
@@ -42,13 +44,15 @@ public struct CollectionView<Content>: UIViewControllerRepresentable where Conte
                        contentInset: UIEdgeInsets = .zero,
                        interitemSpacing: CGFloat = 10,
                        lineSpacing: CGFloat = 10,
-                       showsIndicators: Bool = false) where C: Collection, C.Element == Content.Item, ID: Hashable {
+                       showsIndicators: Bool = false,
+                       update: ((UICollectionView) -> Void)? = nil) where C: Collection, C.Element == Content.Item, ID: Hashable {
         self.axis = axis
         self.data = data.map { Wrapper(item: $0, id: $0[keyPath: id].hashValue) }
         self.contentInset = contentInset
         self.interitemSpacing = interitemSpacing
         self.lineSpacing = lineSpacing
         self.showsIndicators = showsIndicators
+        self.updateHandler = update
     }
     public func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -69,6 +73,7 @@ public struct CollectionView<Content>: UIViewControllerRepresentable where Conte
         controller.collectionView.dataSource = context.coordinator
         controller.collectionView.showsHorizontalScrollIndicator = showsIndicators && axis == .horizontal
         controller.collectionView.showsVerticalScrollIndicator = showsIndicators && axis == .vertical
+        updateHandler?(controller.collectionView)
         return controller
     }
     public func updateUIViewController(_ uiViewController: UICollectionViewController,
