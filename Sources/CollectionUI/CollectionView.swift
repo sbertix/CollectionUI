@@ -27,19 +27,27 @@ public struct CollectionView<Content>: UIViewControllerRepresentable where Conte
     private var axis: Axis
     /// Whether indicators should be shown or not.
     private var showsIndicators: Bool
+    /// The content inset.
+    private var contentInset: UIEdgeInsets
     /// The interitem spacing.
     private var interitemSpacing: CGFloat
+    /// The line spacing.
+    private var lineSpacing: CGFloat
 
     // MARK: Lifecycle
     /// Init with data.
     public init<C, ID>(_ axis: Axis = .horizontal,
                        data: C,
                        id: KeyPath<C.Element, ID>,
-                       spacing: CGFloat = 10,
+                       contentInset: UIEdgeInsets = .zero,
+                       interitemSpacing: CGFloat = 10,
+                       lineSpacing: CGFloat = 10,
                        showsIndicators: Bool = false) where C: Collection, C.Element == Content.Item, ID: Hashable {
         self.axis = axis
         self.data = data.map { Wrapper(item: $0, id: $0[keyPath: id].hashValue) }
-        self.interitemSpacing = spacing
+        self.contentInset = contentInset
+        self.interitemSpacing = interitemSpacing
+        self.lineSpacing = lineSpacing
         self.showsIndicators = showsIndicators
     }
     public func makeCoordinator() -> Coordinator { Coordinator(self) }
@@ -51,12 +59,16 @@ public struct CollectionView<Content>: UIViewControllerRepresentable where Conte
         layout.scrollDirection = axis == .horizontal ? .horizontal : .vertical
         layout.itemSize = Content.size
         layout.minimumInteritemSpacing = interitemSpacing
-        layout.minimumLineSpacing = interitemSpacing
+        layout.minimumLineSpacing = lineSpacing
         // update collection.
         let controller = UICollectionViewController(collectionViewLayout: layout)
-        controller.view.backgroundColor = .clear
+        controller.collectionView.preservesSuperviewLayoutMargins = true
         controller.collectionView.register(UIContainerCollectionViewCell<Content>.self, forCellWithReuseIdentifier: "cell")
+        controller.collectionView.backgroundColor = .clear
+        controller.collectionView.contentInset = contentInset
         controller.collectionView.dataSource = context.coordinator
+        controller.collectionView.showsHorizontalScrollIndicator = showsIndicators && axis == .horizontal
+        controller.collectionView.showsVerticalScrollIndicator = showsIndicators && axis == .vertical
         return controller
     }
     public func updateUIViewController(_ uiViewController: UICollectionViewController,
@@ -90,18 +102,12 @@ public struct CollectionView<Content>: UIViewControllerRepresentable where Conte
             guard cell.id != wrapper.id else { return cell }
             // update cell.
             cell.contentView.subviews.forEach { $0.removeFromSuperview() }
-            guard let container = UIHostingController(rootView: Content(wrapper.item)).view else {
+            let controller = UIHostingController(rootView: Content(wrapper.item))
+            guard let container = controller.view else {
                 fatalError("`container` is invalid.")
             }
+            container.frame = CGRect(origin: .zero, size: Content.size)
             cell.contentView.addSubview(container)
-            container.setContentHuggingPriority(.defaultLow, for: .horizontal)
-            container.setContentHuggingPriority(.defaultLow, for: .vertical)
-            container.setContentCompressionResistancePriority(.required, for: .horizontal)
-            container.setContentCompressionResistancePriority(.required, for: .vertical)
-            container.leadingAnchor.constraint(equalTo: cell.leadingAnchor).isActive = true
-            container.trailingAnchor.constraint(equalTo: cell.trailingAnchor).isActive = true
-            container.topAnchor.constraint(equalTo: cell.topAnchor).isActive = true
-            container.bottomAnchor.constraint(equalTo: cell.bottomAnchor).isActive = true
             return cell
         }
     }
