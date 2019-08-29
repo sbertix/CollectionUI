@@ -1,5 +1,4 @@
 # CollectionUI <WIP>
-![Travis (.com)](https://img.shields.io/travis/com/sbertix/CollectionUI)
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/sbertix/CollectionUI)
 [![GitHub](https://img.shields.io/github/license/sbertix/CollectionUI)](https://github.com/sbertix/CollectionUI/blob/master/LICENSE)
 <img src="https://img.shields.io/badge/supports-Swift%20Package%20Manager-ff69b4.svg">  
