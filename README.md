@@ -49,8 +49,6 @@ struct ContentView : View {
 }
 ```
 
-Coming soon.
-
 ## License
 **CollectionUI** is licensed under the MIT license.  
 Check out [LICENSE](https://github.com/sbertix/NukeImage/blob/master/LICENSE) for more info.
