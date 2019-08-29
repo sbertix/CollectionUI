@@ -15,7 +15,8 @@
 ```swift
 import SwiftUI
 import CollectionUI
-
+```
+```swift
 /// A `StringView` conforming to `UICollectionViewCellRepresentable`.
 struct StringView : UICollectionViewCellRepresentable {
     /// The cell size.
@@ -28,7 +29,8 @@ struct StringView : UICollectionViewCellRepresentable {
     /// The actual body.
     var body: some View { Text(item) }
 }
-
+```
+```swift
 /// A `View`.
 struct ContentView : View {
     var body: some View {
@@ -38,7 +40,10 @@ struct ContentView : View {
                                    contentInset: .init(top: 0, left: 15, bottom: 0, right: 15), // optional.
                                    interitemSpacing: 10, // optional.
                                    lineSpacing: 10, // optional.
-                                   showsIndicator: false // optional)
+                                   showsIndicator: false /* optional. */) {
+                                        // update the `UICollectionView`. optional.
+                                        $0.alwaysBounceHorizontal = true    
+             }
              .frame(height: 300)
     }
 }
