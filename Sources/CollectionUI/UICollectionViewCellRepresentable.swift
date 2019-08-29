@@ -15,7 +15,7 @@ public protocol UICollectionViewCellRepresentable: View {
     associatedtype Item
 
     /// The associated size.
-    static var size: NSCollectionLayoutSize { get }
+    static var size: CGSize { get }
     /// The item.
     var item: Item { get }
 

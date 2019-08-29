@@ -28,14 +28,14 @@ public struct CollectionView<Content>: UIViewControllerRepresentable where Conte
     /// Whether indicators should be shown or not.
     private var showsIndicators: Bool
     /// The interitem spacing.
-    private var interitemSpacing: NSCollectionLayoutSpacing
+    private var interitemSpacing: CGFloat
 
     // MARK: Lifecycle
     /// Init with data.
     public init<C, ID>(_ axis: Axis = .horizontal,
                        data: C,
                        id: KeyPath<C.Element, ID>,
-                       spacing: NSCollectionLayoutSpacing = .fixed(10),
+                       spacing: CGFloat = 10,
                        showsIndicators: Bool = false) where C: Collection, C.Element == Content.Item, ID: Hashable {
         self.axis = axis
         self.data = data.map { Wrapper(item: $0, id: $0[keyPath: id].hashValue) }
@@ -47,14 +47,11 @@ public struct CollectionView<Content>: UIViewControllerRepresentable where Conte
     // MARK: Representable
     public func makeUIViewController(context: UIViewControllerRepresentableContext<CollectionView<Content>>) -> UICollectionViewController {
         /// the actual layout.
-        let itemLayout = NSCollectionLayoutItem(layoutSize: Content.size)
-        let groupLayout = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1),
-                                                                               heightDimension: .fractionalHeight(1)),
-                                                             subitem: itemLayout,
-                                                             count: data.count)
-        groupLayout.interItemSpacing = interitemSpacing
-        let sectionLayout = NSCollectionLayoutSection(group: groupLayout)
-        let layout = UICollectionViewCompositionalLayout(section: sectionLayout)
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = axis == .horizontal ? .horizontal : .vertical
+        layout.itemSize = Content.size
+        layout.minimumInteritemSpacing = interitemSpacing
+        layout.minimumLineSpacing = interitemSpacing
         // update collection.
         let controller = UICollectionViewController(collectionViewLayout: layout)
         controller.view.backgroundColor = .clear
