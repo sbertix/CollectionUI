@@ -57,6 +57,7 @@ public struct CollectionView<Content>: UIViewControllerRepresentable where Conte
         let layout = UICollectionViewCompositionalLayout(section: sectionLayout)
         // update collection.
         let controller = UICollectionViewController(collectionViewLayout: layout)
+        controller.view.backgroundColor = .clear
         controller.collectionView.register(UIContainerCollectionViewCell<Content>.self, forCellWithReuseIdentifier: "cell")
         controller.collectionView.dataSource = context.coordinator
         return controller
@@ -96,6 +97,10 @@ public struct CollectionView<Content>: UIViewControllerRepresentable where Conte
                 fatalError("`container` is invalid.")
             }
             cell.contentView.addSubview(container)
+            container.setContentHuggingPriority(.defaultLow, for: .horizontal)
+            container.setContentHuggingPriority(.defaultLow, for: .vertical)
+            container.setContentCompressionResistancePriority(.required, for: .horizontal)
+            container.setContentCompressionResistancePriority(.required, for: .vertical)
             container.leadingAnchor.constraint(equalTo: cell.leadingAnchor).isActive = true
             container.trailingAnchor.constraint(equalTo: cell.trailingAnchor).isActive = true
             container.topAnchor.constraint(equalTo: cell.topAnchor).isActive = true
