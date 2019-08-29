@@ -14,7 +14,6 @@
 
 ## Usage
 Coming soon.
-```
 
 ## License
 **CollectionUI** is licensed under the MIT license.  
