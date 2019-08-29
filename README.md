@@ -24,6 +24,8 @@ struct StringView : UICollectionViewCellRepresentable {
     /// The item.
     var item: String
     
+    /// Init.
+    init(_ item: String) { self.item = item }
     /// The actual body.
     var body: some View { Text(item) }
 }
