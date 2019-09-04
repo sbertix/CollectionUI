@@ -111,6 +111,7 @@ public struct CollectionView<Content>: UIViewControllerRepresentable where Conte
             guard let container = controller.view else {
                 fatalError("`container` is invalid.")
             }
+            container.backgroundColor = .clear
             container.frame = CGRect(origin: .zero, size: Content.size)
             container.translatesAutoresizingMaskIntoConstraints = false
             cell.contentView.addSubview(container)
