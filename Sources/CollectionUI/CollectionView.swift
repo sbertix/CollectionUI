@@ -92,6 +92,7 @@ public struct CollectionView<Content: View>: UIViewControllerRepresentable {
     public func makeUIViewController(context: UIViewControllerRepresentableContext<CollectionView<Content>>) -> UICollectionViewController {
         // update layout.
         let layout = UICollectionViewFlowLayout()
+        layout.sectionInsetReference = self.layout.insetReference
         layout.scrollDirection = self.layout.axis == .horizontal ? .horizontal : .vertical
         layout.itemSize = self.layout.itemSize
         layout.minimumLineSpacing = self.layout.lineSpacing
@@ -107,6 +108,7 @@ public struct CollectionView<Content: View>: UIViewControllerRepresentable {
         controller.collectionView.dataSource = context.coordinator
         controller.collectionView.showsHorizontalScrollIndicator = self.layout.showsIndicators && self.layout.axis == .horizontal
         controller.collectionView.showsVerticalScrollIndicator = self.layout.showsIndicators && self.layout.axis == .vertical
+        controller.collectionView.clipsToBounds = false
         self.layout.transform?(controller.collectionView)
         return controller
     }
@@ -155,6 +157,7 @@ public struct CollectionView<Content: View>: UIViewControllerRepresentable {
             container.backgroundColor = .clear
             container.frame = .zero
             container.translatesAutoresizingMaskIntoConstraints = false
+            container.clipsToBounds = false
             cell.contentView.addSubview(container)
             // add constraints.
             NSLayoutConstraint.activate([
