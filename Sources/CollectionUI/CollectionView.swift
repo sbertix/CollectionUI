@@ -16,6 +16,8 @@ public struct CollectionViewLayout {
     public var showsIndicators: Bool = true
     /// The content inset. Defaults to `.zero`.
     public var contentInset: UIEdgeInsets = .zero
+    /// The content inset reference. Defaults to `.fromContentInset`.
+    public var insetReference: UICollectionViewFlowLayout.SectionInsetReference = .fromContentInset
     /// The interitem spacing. Defaults to `10`.
     public var interitemSpacing: CGFloat = 10
     /// The line spacing. Defaults to `10`.
@@ -71,6 +73,8 @@ public struct CollectionView<Content: View>: UIViewControllerRepresentable {
     public func indicators(_ showsIndicators: Bool) -> Self { layout { $0.showsIndicators = showsIndicators }}
     /// Update `layout.contentInset`.
     public func inset(_ contentInset: UIEdgeInsets) -> Self { layout { $0.contentInset = contentInset }}
+    /// Update `layout.insetReference`.
+    public func inset(_ reference: UICollectionViewFlowLayout.SectionInsetReference) -> Self { layout { $0.insetReference = reference }}
     /// Update `layout.interitemSpacing`.
     public func interitemSpace(_ interitemSpacing: CGFloat = 10) -> Self { layout { $0.interitemSpacing = interitemSpacing }}
     /// Update `layout.lineSpacing`.
