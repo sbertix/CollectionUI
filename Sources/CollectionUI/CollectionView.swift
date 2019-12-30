@@ -24,6 +24,8 @@ public struct CollectionViewLayout {
     public var itemSize: CGSize = .init(width: 100, height: 100)
     /// Bounces.
     public var alwaysBounces: Bool = false
+    /// Update.
+    public var transform: ((UICollectionView) -> Void)? = nil
 }
 
 /// A basic `UICollectionView` wrapper.
@@ -79,6 +81,8 @@ public struct CollectionView<Content: View>: UIViewControllerRepresentable {
     public func item(width: CGFloat, height: CGFloat) -> Self { layout { $0.itemSize = .init(width: width, height: height) }}
     /// Update `layout.alwaysBounces`.
     public func bounce(_ alwaysBounces: Bool) -> Self { layout { $0.alwaysBounces = alwaysBounces }}
+    /// Update `layout.transform`.
+    public func introspect(_ transform: @escaping (UICollectionView) -> Void) -> Self { layout { $0.transform = transform }}
     
     // MARK: UIViewControllerRepresentable
     public func makeUIViewController(context: UIViewControllerRepresentableContext<CollectionView<Content>>) -> UICollectionViewController {
@@ -99,6 +103,7 @@ public struct CollectionView<Content: View>: UIViewControllerRepresentable {
         controller.collectionView.dataSource = context.coordinator
         controller.collectionView.showsHorizontalScrollIndicator = self.layout.showsIndicators && self.layout.axis == .horizontal
         controller.collectionView.showsVerticalScrollIndicator = self.layout.showsIndicators && self.layout.axis == .vertical
+        self.layout.transform?(controller.collectionView)
         return controller
     }
     public func updateUIViewController(_ uiViewController: UICollectionViewController,
