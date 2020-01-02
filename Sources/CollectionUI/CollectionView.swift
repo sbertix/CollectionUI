@@ -14,18 +14,24 @@ public struct CollectionViewLayout {
     public var axis: Axis = .horizontal
     /// Whether it should show scrolling indicators or not. Defaults to `true`.
     public var showsIndicators: Bool = true
-    /// The content inset. Defaults to `.zero`.
-    public var contentInset: UIEdgeInsets = .zero
-    /// The content inset reference. Defaults to `.fromContentInset`.
-    public var insetReference: UICollectionViewFlowLayout.SectionInsetReference = .fromContentInset
-    /// The interitem spacing. Defaults to `10`.
-    public var interitemSpacing: CGFloat = 10
-    /// The line spacing. Defaults to `10`.
-    public var lineSpacing: CGFloat = 10
-    /// The item size. Defaults to `.init(width: 100, height: 100)`.
-    public var itemSize: CGSize = .init(width: 100, height: 100)
     /// Bounces.
     public var alwaysBounces: Bool = false
+    
+    /// The interitem spacing. Defaults to `nil`.
+    public var interItemSpacing: NSCollectionLayoutSpacing? = nil
+    /// The inter group spacing. Defaults to `10`.
+    public var interGroupSpacing: CGFloat = 10
+    /// The item size.
+    public var itemSize: NSCollectionLayoutSize = .init(widthDimension: .fractionalWidth(1),
+                                                        heightDimension: .fractionalHeight(1))
+    /// The group size.
+    public var groupSize: NSCollectionLayoutSize = .init(widthDimension: .absolute(100),
+                                                         heightDimension: .absolute(100))
+    /// The item content inset. Defaults to `.zero`.
+    public var itemContentInset: NSDirectionalEdgeInsets = .zero
+    /// The item edge spacing. Defaults to `nil`.
+    public var itemEdgeSpacing: NSCollectionLayoutEdgeSpacing? = nil
+    
     /// Update.
     public var transform: ((UICollectionView) -> Void)? = nil
 }
@@ -71,32 +77,40 @@ public struct CollectionView<Content: View>: UIViewControllerRepresentable {
     public func axis(_ axis: Axis) -> Self { layout { $0.axis = axis }}
     /// Update `layout.showsIndicators`.
     public func indicators(_ showsIndicators: Bool) -> Self { layout { $0.showsIndicators = showsIndicators }}
-    /// Update `layout.contentInset`.
-    public func inset(_ contentInset: UIEdgeInsets) -> Self { layout { $0.contentInset = contentInset }}
-    /// Update `layout.insetReference`.
-    public func inset(_ reference: UICollectionViewFlowLayout.SectionInsetReference) -> Self { layout { $0.insetReference = reference }}
-    /// Update `layout.interitemSpacing`.
-    public func interitemSpace(_ interitemSpacing: CGFloat = 10) -> Self { layout { $0.interitemSpacing = interitemSpacing }}
-    /// Update `layout.lineSpacing`.
-    public func lineSpace(_ lineSpacing: CGFloat = 10) -> Self { layout { $0.lineSpacing = lineSpacing }}
-    /// Update `layout.itemSize`.
-    public func item(size: CGSize) -> Self { layout { $0.itemSize = size }}
-    /// Update `layout.itemSize`.
-    public func item(width: CGFloat, height: CGFloat) -> Self { layout { $0.itemSize = .init(width: width, height: height) }}
     /// Update `layout.alwaysBounces`.
     public func bounce(_ alwaysBounces: Bool) -> Self { layout { $0.alwaysBounces = alwaysBounces }}
+    /// Update `layout.interItemSpacing`.
+    public func itemSpace(_ interitemSpacing: NSCollectionLayoutSpacing?) -> Self {
+        layout { $0.interItemSpacing = interitemSpacing }
+    }
+    /// Update `layout.interGroupSpacing`.
+    public func groupSpace(_ intergroupSpacing: CGFloat) -> Self { layout { $0.interGroupSpacing = intergroupSpacing }}
+    /// Update `layout.itemSize`.
+    public func itemSize(_ size: NSCollectionLayoutSize) -> Self { layout { $0.itemSize = size }}
+    /// Update `layout.groupSize`.
+    public func groupSize(_ size: NSCollectionLayoutSize) -> Self { layout { $0.groupSize = size }}
+    /// Update `layout.itemContentInset`.
+    public func itemContentInset(_ contentInset: NSDirectionalEdgeInsets) -> Self { layout { $0.itemContentInset = contentInset }}
+    /// Update `layout.edgeSpacing`.
+    public func itemEdgeSpacing(_ edgeSpacing: NSCollectionLayoutEdgeSpacing?) -> Self { layout { $0.itemEdgeSpacing = edgeSpacing }}
     /// Update `layout.transform`.
     public func introspect(_ transform: @escaping (UICollectionView) -> Void) -> Self { layout { $0.transform = transform }}
     
     // MARK: UIViewControllerRepresentable
     public func makeUIViewController(context: UIViewControllerRepresentableContext<CollectionView<Content>>) -> UICollectionViewController {
         // update layout.
-        let layout = UICollectionViewFlowLayout()
-        layout.sectionInsetReference = self.layout.insetReference
-        layout.scrollDirection = self.layout.axis == .horizontal ? .horizontal : .vertical
-        layout.itemSize = self.layout.itemSize
-        layout.minimumLineSpacing = self.layout.lineSpacing
-        layout.minimumInteritemSpacing = self.layout.interitemSpacing
+        let configuration = UICollectionViewCompositionalLayoutConfiguration()
+        configuration.scrollDirection = self.layout.axis == .horizontal ? .horizontal : .vertical
+        let item = NSCollectionLayoutItem(layoutSize: self.layout.itemSize)
+        item.contentInsets = self.layout.itemContentInset
+        item.edgeSpacing = self.layout.itemEdgeSpacing
+        let group = self.layout.axis == .horizontal
+            ? NSCollectionLayoutGroup.vertical(layoutSize: self.layout.groupSize, subitems: [item])
+            : NSCollectionLayoutGroup.horizontal(layoutSize: self.layout.groupSize, subitems: [item])
+        group.interItemSpacing = self.layout.interItemSpacing
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = self.layout.interGroupSpacing
+        let layout = UICollectionViewCompositionalLayout(section: section, configuration: configuration)
         // update collection.
         let controller = UICollectionViewController(collectionViewLayout: layout)
         controller.collectionView.alwaysBounceHorizontal = self.layout.alwaysBounces && self.layout.axis == .horizontal
@@ -104,7 +118,6 @@ public struct CollectionView<Content: View>: UIViewControllerRepresentable {
         controller.collectionView.preservesSuperviewLayoutMargins = true
         controller.collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: "cell")
         controller.collectionView.backgroundColor = .clear
-        controller.collectionView.contentInset = self.layout.contentInset
         controller.collectionView.dataSource = context.coordinator
         controller.collectionView.showsHorizontalScrollIndicator = self.layout.showsIndicators && self.layout.axis == .horizontal
         controller.collectionView.showsVerticalScrollIndicator = self.layout.showsIndicators && self.layout.axis == .vertical
@@ -156,16 +169,11 @@ public struct CollectionView<Content: View>: UIViewControllerRepresentable {
             // update container.
             container.backgroundColor = .clear
             container.frame = .zero
-            container.translatesAutoresizingMaskIntoConstraints = false
+            container.translatesAutoresizingMaskIntoConstraints = true
             container.clipsToBounds = false
+            container.frame = cell.contentView.bounds
+            container.autoresizingMask = [.flexibleHeight, .flexibleBottomMargin, .flexibleWidth, .flexibleRightMargin]
             cell.contentView.addSubview(container)
-            // add constraints.
-            NSLayoutConstraint.activate([
-                container.topAnchor.constraint(equalTo: cell.contentView.topAnchor),
-                container.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor),
-                container.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor),
-                container.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor)
-            ])
             cell.identifier = value.0
             return cell
         }
