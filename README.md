@@ -3,7 +3,7 @@
 [![GitHub](https://img.shields.io/github/license/sbertix/CollectionUI)](https://github.com/sbertix/CollectionUI/blob/master/LICENSE)
 <img src="https://img.shields.io/badge/supports-Swift%20Package%20Manager-ff69b4.svg">  
 
-**CollectionUI** is a simple **SwiftUI** _wrapper_ for `UICollectionView`.
+**CollectionUI** is a simple **SwiftUI** _wrapper_ for (simple) `UICollectionView`s.
 
 ## Installation
 ### Swift Package Manager (Xcode 11 and above)
@@ -15,36 +15,21 @@
 ```swift
 import SwiftUI
 import CollectionUI
-```
-```swift
-/// A `StringView` conforming to `UICollectionViewCellRepresentable`.
-struct StringView : UICollectionViewCellRepresentable {
-    /// The cell size.
-    static var size: CGSize = .init(width: 100, height: 100)
-    /// The item.
-    var item: String
-    
-    /// Init.
-    init(_ item: String) { self.item = item }
-    /// The actual body.
-    var body: some View { Text(item) }
-}
-```
-```swift
+
 /// A `View`.
 struct ContentView : View {
+    @State var content = ["A", "B", "C"]
+
     var body: some View {
-        CollectionView<StringView>(.horizontal, // optional.
-                                   data: ["A", "B", "C", "D"],
-                                   id: \.hashValue,
-                                   contentInset: .init(top: 0, left: 15, bottom: 0, right: 15), // optional.
-                                   interitemSpacing: 10, // optional.
-                                   lineSpacing: 10, // optional.
-                                   showsIndicator: false /* optional. */) {
-                                        // update the `UICollectionView`. optional.
-                                        $0.alwaysBounceHorizontal = true    
-             }
-             .frame(height: 300)
+        CollectionView($content, id: \.hashValue) { Text($0) }
+            .axis(.horizontal)
+            .indicators(false)
+            .groupSize(.init(widthDimension: .fractionalWidth(0.5),
+                             heightDimension: .fractionalHeight(1)))
+            .itemSize(.init(widthDimension: .fractionalWidth(1),
+                            heightDimension: .fractionalHeight(1)))
+            .frame(minHeight: 80)
+            .padding()
     }
 }
 ```
