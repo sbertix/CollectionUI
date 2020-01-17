@@ -21,7 +21,7 @@ struct ContentView : View {
     @State var content = ["A", "B", "C"]
 
     var body: some View {
-        CollectionView($content, id: \.hashValue) { Text($0) }
+        CollectionView(content, id: \.hashValue) { Text($0) }
             .axis(.horizontal)
             .indicators(false)
             .groupSize(.init(widthDimension: .fractionalWidth(0.5),
